@@ -1,0 +1,11 @@
+fakebuild
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.obj
+*.o
+# Go
+*.test
+*.out
