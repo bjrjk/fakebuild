@@ -34,7 +34,7 @@ var (
 		"match", "argparse", "cli", "command", "option", "argument",
 	}
 
-	extensions = []string{".c", ".cpp", ".cxx", ".cc", ".rs"}
+	extensions = []string{".c", ".cpp", ".cxx", ".cc", ".rs", ".s"}
 	targetNames = []string{
 		"main", "fakebuild", "app", "server", "client", "tool", "cli", "gui",
 		"libcore", "libutils", "libnet", "libhttp", "libdb", "libparser",
@@ -67,6 +67,11 @@ func IsC(filePath string) bool {
 // IsRust returns whether the file should be treated as Rust
 func IsRust(filePath string) bool {
 	return len(filePath) >= 3 && filePath[len(filePath)-3:] == ".rs"
+}
+
+// IsAssembly returns whether the file should be treated as assembly
+func IsAssembly(filePath string) bool {
+	return len(filePath) >= 2 && filePath[len(filePath)-2:] == ".s"
 }
 
 // RandomTargetName generates a random target name

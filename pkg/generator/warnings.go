@@ -17,6 +17,7 @@ var warningTemplates = []struct {
 	Message string
 	Option  string
 }{
+	// C/C++ warnings
 	{"unused variable '%s' [-Wunused-variable]", "Wunused-variable"},
 	{"unused parameter '%s' [-Wunused-parameter]", "Wunused-parameter"},
 	{"unused function '%s' [-Wunused-function]", "Wunused-function"},
@@ -38,6 +39,16 @@ var warningTemplates = []struct {
 	{"function returns a local variable [-Wreturn-local-addr]", "Wreturn-local-addr"},
 	{"format string is not a string literal [-Wformat-nonliteral]", "Wformat-nonliteral"},
 	{"incompatible pointer types passing '%s' to parameter of type '%s' [-Wincompatible-pointer-types]", "Wincompatible-pointer-types"},
+	// Assembly (as) warnings
+	{"warning: label '%s' defined but not used", "Wunused-label"},
+	{"warning: '%s' label defined multiple times", "Wmultiple-labels"},
+	{"warning: ignoring unknown instruction `%s`", "Wunknown-instruction"},
+	{"warning: assuming .implicit for section", "Wimplicit-section"},
+	{"warning: relocation %s out of range", "Wrelocation-out-of-range"},
+	{"warning: changing alignment of section %s", "Wchanged-alignment"},
+	{"warning: flag %s is not supported for this target", "Wunsupported-flag"},
+	{"warning: found instruction after unconditional jump", "Winstruction-after-jump"},
+	{"warning: setting incorrect section attributes", "Wincorrect-section-attrs"},
 }
 
 var identifiers = []string{

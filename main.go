@@ -19,6 +19,7 @@ type Job struct {
 	FilePath   string
 	IsC        bool
 	IsRust     bool
+	IsAssembly bool
 	HasWarning bool
 	Warning    *generator.Warning
 	// Link info - only need it for after-compilation output, percentage already printed
@@ -89,7 +90,7 @@ func main() {
 
 			job, linkProgress := generateJob(cfg, current, 0)
 			// Print Building IMMEDIATELY in correct order (guarantees increasing percentage)
-			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust)
+			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust, job.IsAssembly)
 			// If we need to do a link after this compilation, print it in order too
 			if job.HasLink {
 				out.PrintLinkingWithProgress(linkProgress, job.LinkTarget, job.LinkIsExe)
@@ -120,7 +121,7 @@ func main() {
 
 			job, linkProgress := generateJob(cfg, current, cfg.TotalFiles)
 			// Print Building IMMEDIATELY in correct order (guarantees increasing percentage)
-			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust)
+			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust, job.IsAssembly)
 			// If we need to do a link after this compilation, print it in order too
 			if job.HasLink {
 				out.PrintLinkingWithProgress(linkProgress, job.LinkTarget, job.LinkIsExe)
@@ -158,11 +159,13 @@ func generateJob(cfg *config.Config, current int, total int) (Job, int) {
 	filePath := generator.RandomFilePath()
 	isC := generator.IsC(filePath)
 	isRust := generator.IsRust(filePath)
+	isAssembly := generator.IsAssembly(filePath)
 
 	job := Job{
-		FilePath: filePath,
-		IsC:      isC,
-		IsRust:   isRust,
+		FilePath:    filePath,
+		IsC:         isC,
+		IsRust:      isRust,
+		IsAssembly:  isAssembly,
 	}
 
 	if rand.Float64() < cfg.WarningFreq {
