@@ -115,13 +115,13 @@ func main() {
 		close(jobChan)
 
 		// Wait for all workers to finish
-		go func() {
-			wg.Wait()
-			sigChan <- os.Interrupt // trigger exit
-		}()
+		wg.Wait()
 
-		// Wait for completion
-		<-sigChan
+		// Final linking step before completion (realistic CMake behavior)
+		out.RandomDelay()
+		out.PrintLinking("fakebuild", true)
+		out.RandomDelay()
+
 		// After all workers done, print finished
 		out.PrintFinished("fakebuild")
 		goto exit
