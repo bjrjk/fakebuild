@@ -6,12 +6,14 @@ Create fake productivity with endless realistic-looking CMake build output.
 ## Features
 
 - Endless build logs (or specify a fixed number of files)
-- Random C/C++ compiler warnings (but **never** errors)
-- Realistic CMake output format
+- Random C/C++/Rust compiler warnings (but **never** errors)
+- Realistic CMake output format with **strictly increasing percentage**
+- Supports C, C++, and **Rust** files
 - ANSI colored output
 - Parallel build simulation
 - Configurable speed and warning frequency
-- Configurable random compilation delay (file size simulation)
+- Configurable random compilation delay (simulates varying file sizes)
+- Intermediate and final linking steps like real CMake
 - 100% fake productivity
 
 ## Building
@@ -67,15 +69,19 @@ fakebuild --total 1000
 ## Example Output
 
 ```
-[  0%] Building C object src/http/client.c.o
-[  1%] Building CXX object src/utils/string.cpp.o
-In file included from src/utils/string.cpp:12:
-src/utils/string.hpp:45: warning: unused variable 'buffer_size' [-Wunused-variable]
-   45 |   size_t buffer_size = 1024;
-       |            ^~~~~~~~~~
-[  2%] Building CXX object src/core/parser.cpp.o
-[  3%] Linking CXX executable bin/fakebuild
+[  0%] Building Rust object thirdparty/zlib/hash_memory.rs.o
+[ 10%] Building CXX object src/lexer/vector_socket.cc.o
+[ 20%] Building CXX object modules/video/tar_decode.cc.o
+[ 30%] Building CXX object thirdparty/match_math.cxx.o
+[ 40%] Building Rust object examples/frame.rs.o
+In file included from src/lexer/vector_socket.cc:25:
+src/lexer/vector_socket.cc:41: warning: deprecated declaration of 'cls' [-Wdeprecated-declarations]
+                                  41 |   cls;
+                                           ^
+[ 20%] Linking executable libdb
+[ 26%] Building CXX object src/compiler/search.cpp.o
 ...
+[ 99%] Linking executable fakebuild
 [100%] Built target fakebuild
 ```
 
