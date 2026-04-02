@@ -34,7 +34,7 @@ var (
 		"match", "argparse", "cli", "command", "option", "argument",
 	}
 
-	extensions = []string{".c", ".cpp", ".cxx", ".cc", ".rs", ".s"}
+	extensions = []string{".c", ".cpp", ".cxx", ".cc", ".rs", ".s", ".swift", ".go"}
 	targetNames = []string{
 		"main", "fakebuild", "app", "server", "client", "tool", "cli", "gui",
 		"libcore", "libutils", "libnet", "libhttp", "libdb", "libparser",
@@ -72,6 +72,16 @@ func IsRust(filePath string) bool {
 // IsAssembly returns whether the file should be treated as assembly
 func IsAssembly(filePath string) bool {
 	return len(filePath) >= 2 && filePath[len(filePath)-2:] == ".s"
+}
+
+// IsSwift returns whether the file should be treated as Swift
+func IsSwift(filePath string) bool {
+	return len(filePath) >= 6 && filePath[len(filePath)-6:] == ".swift"
+}
+
+// IsGo returns whether the file should be treated as Go
+func IsGo(filePath string) bool {
+	return len(filePath) >= 3 && filePath[len(filePath)-3:] == ".go"
 }
 
 // RandomTargetName generates a random target name

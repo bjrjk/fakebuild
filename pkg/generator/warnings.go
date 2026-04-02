@@ -49,6 +49,16 @@ var warningTemplates = []struct {
 	{"warning: flag %s is not supported for this target", "Wunsupported-flag"},
 	{"warning: found instruction after unconditional jump", "Winstruction-after-jump"},
 	{"warning: setting incorrect section attributes", "Wincorrect-section-attrs"},
+	// Go compiler warnings
+	{"'%s' imported but not used", "Wimport-unused"},
+	{"'%s' declared but not used", "Wdeclared-unused"},
+	{"missing return at end of function", "Wmissing-return"},
+	{"struct '%s' doesn't have field name '%s'", "Wunknown-field"},
+	// Swift compiler warnings
+	{"immutable value '%s' was never mutated", "Wimmutable-variable-never-mutated"},
+	{"conditional binding is always true", "Walways-true"},
+	{"conditional binding is always false", "Walways-false"},
+	{"conversion from '%s' to '%s' involves bridging [...] [Wconversion]", "Wconversion"},
 }
 
 var identifiers = []string{

@@ -28,9 +28,13 @@ func (o *Output) color(color string) string {
 }
 
 // PrintCompiling prints the "Building ..." line
-func (o *Output) PrintCompiling(progress int, filePath string, isC bool, isRust bool, isAssembly bool) {
+func (o *Output) PrintCompiling(progress int, filePath string, isC bool, isRust bool, isAssembly bool, isSwift bool, isGo bool) {
 	var lang string
-	if isAssembly {
+	if isGo {
+		lang = "Go"
+	} else if isSwift {
+		lang = "Swift"
+	} else if isAssembly {
 		lang = "AS"
 	} else if isRust {
 		lang = "Rust"
