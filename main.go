@@ -17,6 +17,7 @@ import (
 type Job struct {
 	FilePath  string
 	IsC       bool
+	IsRust    bool
 	HasWarning bool
 	Warning   *generator.Warning
 	HasLink   bool
@@ -86,7 +87,7 @@ func main() {
 
 			job := generateJob(cfg)
 			// Print Building IMMEDIATELY in correct order
-			out.PrintCompiling(progress, job.FilePath+".o", job.IsC)
+			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust)
 			// Send to worker for delay and warnings
 			jobChan <- job
 			current++
@@ -107,7 +108,7 @@ func main() {
 
 			job := generateJob(cfg)
 			// Print Building IMMEDIATELY in correct order
-			out.PrintCompiling(progress, job.FilePath+".o", job.IsC)
+			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust)
 			// Send to worker for delay and warnings
 			jobChan <- job
 		}
@@ -133,10 +134,12 @@ exit:
 func generateJob(cfg *config.Config) Job {
 	filePath := generator.RandomFilePath()
 	isC := generator.IsC(filePath)
+	isRust := generator.IsRust(filePath)
 
 	job := Job{
 		FilePath: filePath,
 		IsC:      isC,
+		IsRust:   isRust,
 	}
 
 	if rand.Float64() < cfg.WarningFreq {

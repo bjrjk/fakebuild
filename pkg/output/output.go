@@ -28,10 +28,14 @@ func (o *Output) color(color string) string {
 }
 
 // PrintCompiling prints the "Building ..." line
-func (o *Output) PrintCompiling(progress int, filePath string, isC bool) {
-	lang := "CXX"
-	if isC {
+func (o *Output) PrintCompiling(progress int, filePath string, isC bool, isRust bool) {
+	var lang string
+	if isRust {
+		lang = "Rust"
+	} else if isC {
 		lang = "C"
+	} else {
+		lang = "CXX"
 	}
 	pct := fmt.Sprintf("%3d%%", progress)
 	fmt.Printf("%s[%s]%s Building %s object %s%s%s\n",
