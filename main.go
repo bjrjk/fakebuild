@@ -14,13 +14,15 @@ import (
 )
 
 // Job represents a compilation job
+// All percentage-based output is printed by main goroutine to guarantee order
 type Job struct {
-	FilePath  string
-	IsC       bool
-	IsRust    bool
+	FilePath   string
+	IsC        bool
+	IsRust     bool
 	HasWarning bool
-	Warning   *generator.Warning
-	HasLink   bool
+	Warning    *generator.Warning
+	// Link info - only need it for after-compilation output, percentage already printed
+	HasLink    bool
 	LinkTarget string
 	LinkIsExe  bool
 }
@@ -46,20 +48,20 @@ func main() {
 	// WaitGroup for workers
 	var wg sync.WaitGroup
 
-	// Start workers - they do the delay (simulate compilation) and output warnings/linking
+	// Start workers - they do the delay (simulate compilation) and output warnings
+	// All percentage-based output (Building/Linking) is already printed by main goroutine to guarantee order
 	worker := func() {
 		defer wg.Done()
 		for job := range jobChan {
-			// Simulate compilation time
+			// Simulate compilation time (delay after percentage output)
 			out.RandomDelay()
 
-			// After compilation, output warnings and linking (order doesn't matter)
+			// After compilation completes, output warnings (warnings go after compilation anyway, order doesn't matter)
 			if job.HasWarning {
 				out.PrintWarning(job.Warning.File, job.Warning.Line, job.Warning.Message, job.Warning.Option)
 			}
-			if job.HasLink {
-				out.PrintLinking(job.LinkTarget, job.LinkIsExe)
-			}
+			// Linking percentage is already printed by main goroutine in correct order
+			// No need to output again here
 		}
 	}
 
@@ -85,16 +87,26 @@ func main() {
 				progress = 99
 			}
 
-			job := generateJob(cfg)
-			// Print Building IMMEDIATELY in correct order
+			job, linkProgress := generateJob(cfg, current, 0)
+			// Print Building IMMEDIATELY in correct order (guarantees increasing percentage)
 			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust)
+			// If we need to do a link after this compilation, print it in order too
+			if job.HasLink {
+				out.PrintLinkingWithProgress(linkProgress, job.LinkTarget, job.LinkIsExe)
+			}
 			// Send to worker for delay and warnings
 			jobChan <- job
-			current++
+			if job.HasLink {
+				current += 2
+			} else {
+				current++
+			}
 		}
 	} else {
-		// Finite mode: print Building lines in order
-		for current := 0; current < cfg.TotalFiles; current++ {
+		// Finite mode: print everything in order
+		current := 0
+		// Reserve the last step for final linking (99%), so we need one less compilation
+		for current < cfg.TotalFiles - 1 {
 			select {
 			case <-sigChan:
 				goto exit
@@ -106,21 +118,30 @@ func main() {
 				progress = 100
 			}
 
-			job := generateJob(cfg)
-			// Print Building IMMEDIATELY in correct order
+			job, linkProgress := generateJob(cfg, current, cfg.TotalFiles)
+			// Print Building IMMEDIATELY in correct order (guarantees increasing percentage)
 			out.PrintCompiling(progress, job.FilePath+".o", job.IsC, job.IsRust)
+			// If we need to do a link after this compilation, print it in order too
+			if job.HasLink {
+				out.PrintLinkingWithProgress(linkProgress, job.LinkTarget, job.LinkIsExe)
+			}
 			// Send to worker for delay and warnings
 			jobChan <- job
+			if job.HasLink {
+				current += 2
+			} else {
+				current++
+			}
 		}
+
+		// Print final linking step at 99% before 100% finished
+		out.PrintLinkingWithProgress(99, "fakebuild", true)
+		finalJob := Job{HasLink: true, LinkTarget: "fakebuild", LinkIsExe: true}
+		jobChan <- finalJob
 		close(jobChan)
 
-		// Wait for all workers to finish
+		// Wait for all workers to finish including final linking delay
 		wg.Wait()
-
-		// Final linking step before completion (realistic CMake behavior)
-		out.RandomDelay()
-		out.PrintLinking("fakebuild", true)
-		out.RandomDelay()
 
 		// After all workers done, print finished
 		out.PrintFinished("fakebuild")
@@ -131,7 +152,9 @@ exit:
 	os.Exit(0)
 }
 
-func generateJob(cfg *config.Config) Job {
+// generateJob returns a new job with random content
+// Link info is stored, but percentage is printed by main for order
+func generateJob(cfg *config.Config, current int, total int) (Job, int) {
 	filePath := generator.RandomFilePath()
 	isC := generator.IsC(filePath)
 	isRust := generator.IsRust(filePath)
@@ -147,11 +170,24 @@ func generateJob(cfg *config.Config) Job {
 		job.Warning = generator.GenerateWarning(filePath)
 	}
 
+	var linkProgress int
 	if rand.Float32() < 0.05 {
 		job.HasLink = true
 		job.LinkTarget = generator.RandomTargetName()
 		job.LinkIsExe = rand.Float32() < 0.7
+		current++
+		if cfg.Endless {
+			linkProgress = (current * 100) / 1000
+			if linkProgress > 99 {
+				linkProgress = 99
+			}
+		} else {
+			linkProgress = (current * 100) / total
+			if linkProgress > 100 {
+				linkProgress = 100
+			}
+		}
 	}
 
-	return job
+	return job, linkProgress
 }

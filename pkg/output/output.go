@@ -44,7 +44,7 @@ func (o *Output) PrintCompiling(progress int, filePath string, isC bool, isRust 
 		o.color(ColorBold), filePath, o.color(ColorReset))
 }
 
-// PrintLinking prints the "Linking ..." line
+// PrintLinking prints the "Linking ..." line with random progress
 func (o *Output) PrintLinking(targetName string, isExecutable bool) {
 	what := "executable"
 	if !isExecutable {
@@ -52,6 +52,19 @@ func (o *Output) PrintLinking(targetName string, isExecutable bool) {
 	}
 	pct := rand.Intn(99) + 1
 	pctStr := fmt.Sprintf("%3d%%", pct)
+	fmt.Printf("%s[%s]%s Linking %s %s%s%s\n",
+		o.color(ColorGray), pctStr, o.color(ColorReset),
+		what,
+		o.color(ColorBold), targetName, o.color(ColorReset))
+}
+
+// PrintLinkingWithProgress prints the "Linking ..." line with given progress (guarantees order)
+func (o *Output) PrintLinkingWithProgress(progress int, targetName string, isExecutable bool) {
+	what := "executable"
+	if !isExecutable {
+		what = "shared library"
+	}
+	pctStr := fmt.Sprintf("%3d%%", progress)
 	fmt.Printf("%s[%s]%s Linking %s %s%s%s\n",
 		o.color(ColorGray), pctStr, o.color(ColorReset),
 		what,
