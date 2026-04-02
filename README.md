@@ -11,6 +11,7 @@ Create fake productivity with endless realistic-looking CMake build output.
 - ANSI colored output
 - Parallel build simulation
 - Configurable speed and warning frequency
+- Configurable random compilation delay (file size simulation)
 - 100% fake productivity
 
 ## Building
@@ -41,6 +42,8 @@ Options:
   -e, --endless            Run forever (default: true)
   -t, --total INT          Total files to compile (0 = endless, default: 0)
   -w, --warnings FLOAT     Warning frequency 0.0 - 1.0 (default: 0.15)
+  -m, --min-delay FLOAT    Minimum compilation delay in seconds (default: 0)
+  -M, --max-delay FLOAT    Maximum compilation delay in seconds (default: 10)
   --no-color               Disable ANSI colored output
   -h, --help               Show this help message
 ```
@@ -48,8 +51,11 @@ Options:
 ### Examples
 
 ```bash
-# Default: endless build, full fake productivity
+# Default: endless build, full fake productivity (0-10s random delay)
 fakebuild
+
+# 16 parallel jobs, realistic 1-15 second random delays
+fakebuild --parallel 16 --min-delay 1 --max-delay 15
 
 # 16 parallel jobs, double speed, 30% warning rate
 fakebuild --parallel 16 --speed 2 --warnings 0.3

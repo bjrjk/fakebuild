@@ -114,9 +114,11 @@ func (o *Output) PrintFinished(target string) {
 
 // RandomDelay sleeps for a random duration based on speed
 func (o *Output) RandomDelay() {
-	// Base delay between 10ms and 200ms
-	base := time.Duration(10+rand.Intn(190)) * time.Millisecond
-	delay := base / time.Duration(o.config.Speed)
+	// Random delay between MinDelay and MaxDelay seconds
+	delaySec := o.config.MinDelay + rand.Float64()*(o.config.MaxDelay - o.config.MinDelay)
+	// Apply speed multiplier
+	delaySec = delaySec / o.config.Speed
+	delay := time.Duration(delaySec * float64(time.Second))
 	time.Sleep(delay)
 }
 

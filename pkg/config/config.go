@@ -13,6 +13,8 @@ type Config struct {
 	Endless     bool     // Run forever
 	TotalFiles  int      // Total files to compile (0 = endless)
 	WarningFreq float64  // Probability of a warning (0.0 - 1.0)
+	MinDelay    float64  // Minimum compilation delay in seconds (default: 0)
+	MaxDelay    float64  // Maximum compilation delay in seconds (default: 10)
 	NoColor     bool     // Disable ANSI colors
 }
 
@@ -24,6 +26,8 @@ func Parse() *Config {
 		Endless:     true,
 		TotalFiles:  0,
 		WarningFreq: 0.15,
+		MinDelay:    0.0,
+		MaxDelay:    10.0,
 		NoColor:     false,
 	}
 
@@ -41,6 +45,12 @@ func Parse() *Config {
 
 	flag.Float64Var(&cfg.WarningFreq, "warnings", cfg.WarningFreq, "Warning frequency (0.0 - 1.0)")
 	flag.Float64Var(&cfg.WarningFreq, "w", cfg.WarningFreq, "Warning frequency (short)")
+
+	flag.Float64Var(&cfg.MinDelay, "min-delay", cfg.MinDelay, "Minimum compilation delay in seconds (default: 0)")
+	flag.Float64Var(&cfg.MinDelay, "m", cfg.MinDelay, "Minimum compilation delay in seconds (short)")
+
+	flag.Float64Var(&cfg.MaxDelay, "max-delay", cfg.MaxDelay, "Maximum compilation delay in seconds (default: 10)")
+	flag.Float64Var(&cfg.MaxDelay, "M", cfg.MaxDelay, "Maximum compilation delay in seconds (short)")
 
 	flag.BoolVar(&cfg.NoColor, "no-color", cfg.NoColor, "Disable ANSI colored output")
 
@@ -72,6 +82,12 @@ func Parse() *Config {
 	if cfg.WarningFreq > 1 {
 		cfg.WarningFreq = 1
 	}
+	if cfg.MinDelay < 0 {
+		cfg.MinDelay = 0
+	}
+	if cfg.MaxDelay < cfg.MinDelay {
+		cfg.MaxDelay = cfg.MinDelay
+	}
 
 	return cfg
 }
@@ -88,11 +104,14 @@ func printHelp() {
 	fmt.Println("  -e, --endless            Run forever (default: true)")
 	fmt.Println("  -t, --total INT          Total files to compile (0 = endless, default: 0)")
 	fmt.Println("  -w, --warnings FLOAT     Warning frequency 0.0 - 1.0 (default: 0.15)")
+	fmt.Println("  -m, --min-delay FLOAT    Minimum compilation delay in seconds (default: 0)")
+	fmt.Println("  -M, --max-delay FLOAT    Maximum compilation delay in seconds (default: 10)")
 	fmt.Println("  --no-color               Disable ANSI colored output")
 	fmt.Println("  -h, --help               Show this help message")
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  fakebuild")
-	fmt.Println("  fakebuild --parallel 16 --speed 2 --warnings 0.3")
+	fmt.Println("  fakebuild --parallel 16 --min-delay 1 --max-delay 15")
+	fmt.Println("  fakebuild --speed 2 --warnings 0.3")
 	fmt.Println("  fakebuild --total 1000")
 }
