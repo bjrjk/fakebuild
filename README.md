@@ -6,14 +6,15 @@ Create fake productivity with endless realistic-looking CMake build output.
 ## Features
 
 - Endless build logs (or specify a fixed number of files)
-- Random C/C++/Rust compiler warnings (but **never** errors)
+- Random compiler warnings (but **never** errors)
 - Realistic CMake output format with **strictly increasing percentage**
-- Supports C, C++, and **Rust** files
+- Supports **6 languages**: C, C++, Assembly, Rust, Swift, Go
 - ANSI colored output
 - Parallel build simulation
 - Configurable speed and warning frequency
 - Configurable random compilation delay (simulates varying file sizes)
 - Intermediate and final linking steps like real CMake
+- Language-specific warning templates for each language
 - 100% fake productivity
 
 ## Building
@@ -69,18 +70,17 @@ fakebuild --total 1000
 ## Example Output
 
 ```
-[  0%] Building Rust object thirdparty/zlib/hash_memory.rs.o
-[ 10%] Building CXX object src/lexer/vector_socket.cc.o
-[ 20%] Building CXX object modules/video/tar_decode.cc.o
-[ 30%] Building CXX object thirdparty/match_math.cxx.o
-[ 40%] Building Rust object examples/frame.rs.o
-In file included from src/lexer/vector_socket.cc:25:
-src/lexer/vector_socket.cc:41: warning: deprecated declaration of 'cls' [-Wdeprecated-declarations]
-                                  41 |   cls;
-                                           ^
-[ 20%] Linking executable libdb
-[ 26%] Building CXX object src/compiler/search.cpp.o
-...
+[  0%] Building C object src/runtime/shape.c.o
+[ 10%] Building C object src/core/query.c.o
+[ 20%] Building CXX object apps/cli/point_decode.cc.o
+[ 30%] Building AS object src/parser/memory.s.o
+[ 40%] Building Go object src/core/mutex.go.o
+[ 50%] Building CXX object src/runtime/math.cxx.o
+[ 60%] Building Swift object modules/audio/vector.swift.o
+[ 70%] Building CXX object modules/wave.cpp.o
+[ 80%] Building Swift object thirdparty/freetype/frame_hash.swift.o
+In file included from src/core/mutex.go:21:
+src/core/mutex.go:289: warning: warning: found instruction after unconditional jump [Winstruction-after-jump]
 [ 99%] Linking executable fakebuild
 [100%] Built target fakebuild
 ```
