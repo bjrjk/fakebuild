@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            runner: ubuntu-latest
+            archive: tar.gz
+          - goos: linux
+            goarch: arm64
+            runner: ubuntu-latest
+            archive: tar.gz
+          - goos: darwin
+            goarch: amd64
+            runner: macos-latest
+            archive: tar.gz
+          - goos: darwin
+            goarch: arm64
+            runner: macos-latest
+            archive: tar.gz
+          - goos: windows
+            goarch: amd64
+            runner: windows-latest
+            archive: zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="${GITHUB_REF_NAME}"
+          BIN="fakebuild"
+          EXT=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            EXT=".exe"
+          fi
+
+          OUTDIR="dist/${{ matrix.goos }}-${{ matrix.goarch }}"
+          mkdir -p "$OUTDIR"
+
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+            go build -trimpath -ldflags="-s -w" \
+            -o "${OUTDIR}/${BIN}${EXT}" .
+
+          cp README.md "$OUTDIR/" || true
+          cp LICENSE "$OUTDIR/" || true
+
+      - name: Package (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME}"
+          NAME="fakebuild_${VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
+          mv "dist/${{ matrix.goos }}-${{ matrix.goarch }}" "$NAME"
+          tar -czf "${NAME}.tar.gz" "$NAME"
+
+      - name: Package (zip)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          $Version = "${env:GITHUB_REF_NAME}"
+          $Name = "fakebuild_${Version}_${{ matrix.goos }}_${{ matrix.goarch }}"
+          Compress-Archive -Path "dist/${{ matrix.goos }}-${{ matrix.goarch }}/*" -DestinationPath "$Name.zip"
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            fakebuild_${{ github.ref_name }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
+            fakebuild_${{ github.ref_name }}_${{ matrix.goos }}_${{ matrix.goarch }}.zip
+          generate_release_notes: true
